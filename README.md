@@ -1,12 +1,10 @@
 # AUTONORM
 
-AUTONORM is a software package for determining the ratio between TALYS results and the corresponding values from an ENDF-6 format nuclear data library, so that TALYS can be exactly normalized to the desired result in a second run.
+AUTONORM is a software package for determining normalization factors between TALYS results and corresponding values from an ENDF-6 formatted nuclear data library. These factors can then be used in a second TALYS calculation so that selected TALYS results reproduce the desired evaluated-library values.
 
 ## Documentation and reference
 
-The user manual for AUTONORM is included as `doc/tools.pdf`.
-
-After the GitHub repository has been published, it can also be linked directly from the repository.
+Documentation for the TALYS tools, including automatic normalization, is available in the [TALYS tools tutorial (pdf)](https://nds.iaea.org/talys/tutorials/tools.pdf).
 
 The reference to be used for AUTONORM is:
 
@@ -19,15 +17,12 @@ A.J. Koning, D. Rochman, J.-Ch. Sublet, N. Dzysiuk, M. Fleming, and S. van der M
 The following are the prerequisites for compiling and using AUTONORM:
 
 - GNU make
-- a recent Fortran compiler, such as GNU Fortran (`gfortran`)
+- a recent Fortran compiler, such as GNU Fortran (gfortran)
 - the nuclear-data `libraries/` directory used for the normalization
 - TALYS output files for the calculation to be normalized
+- git, only when AUTONORM is downloaded using `git clone`
 
-`git` is additionally required when AUTONORM is obtained from GitHub.
-
-### Directory layout
-
-By default, AUTONORM expects the nuclear-data libraries to be a sibling directory of the AUTONORM installation:
+AUTONORM expects the nuclear-data libraries to be installed as a sibling directory of the AUTONORM installation. A typical layout is therefore:
 
 ```text
 parent_directory/
@@ -39,46 +34,64 @@ The TALYS result files that AUTONORM normalizes are read from the current workin
 
 ### Downloads
 
-#### 1. Download the tar file
+AUTONORM can be downloaded in one of the following ways.
+
+#### 1. Latest version without git
+
+Users who do not have git can download a snapshot of the current `main` branch directly from GitHub:
 
 ```bash
-curl -LO https://nds.iaea.org/talys/autonorm.tar
-tar zxf autonorm.tar
+curl -L \
+  -o autonorm-main.tar.gz \
+  https://github.com/arjankoning1/autonorm/archive/refs/heads/main.tar.gz
+
+tar zxf autonorm-main.tar.gz
+mv autonorm-main autonorm
 ```
 
-#### 2. Using git
+This produces the same `autonorm/` directory structure as the git version, but without the git history.
 
-Once the GitHub repository has been published:
+The downloaded snapshot contains the latest version of the `main` branch at the time of download. To obtain a newer version later, download the snapshot again.
+
+#### 2. Latest version using git
+
+Users with git can clone the repository with
 
 ```bash
 git clone https://github.com/arjankoning1/autonorm.git
 ```
 
-### Installation instructions
-
-#### Using the installation script
+The advantage of this method is that the local AUTONORM installation can subsequently be updated with
 
 ```bash
 cd autonorm
+git pull --ff-only
+```
+
+### Installation instructions
+
+From the `autonorm/` directory, run
+
+```bash
 ./install_autonorm.bash
 ```
 
-The script automatically runs the Makefile in `autonorm/source`.
+which automatically cleans the previous build and executes the `Makefile` in `autonorm/source`.
 
-#### Using make directly
+An alternative is:
 
 ```bash
 cd autonorm/source
 make
 ```
 
-The executable is installed as:
+The executable is installed as
 
 ```text
 autonorm/bin/autonorm
 ```
 
-For the modern version, the default compiler is `gfortran`. When `gfortran` is used and no `FFLAGS` are supplied, the Makefile uses:
+The default compiler is `gfortran`. When `gfortran` is used and no `FFLAGS` are supplied, the Makefile uses:
 
 ```text
 -w -O3 -ffp-contract=off
@@ -86,38 +99,41 @@ For the modern version, the default compiler is `gfortran`. When `gfortran` is u
 
 For other compilers, no default compiler flags are imposed.
 
-Compiler and compilation options can be passed through `install_autonorm.bash`, for example:
+The compiler and compilation options can be passed to the Makefile through `install_autonorm.bash`. For example:
 
 ```bash
+# GNU Fortran
 ./install_autonorm.bash FC=gfortran FFLAGS="-O3 -ffp-contract=off"
+
+# Intel Fortran
 ./install_autonorm.bash FC=ifx FFLAGS="-O3"
 ```
 
 ### Runtime environment
 
-Set `AUTONORM_DIR` to the AUTONORM installation directory. For example:
+Set `AUTONORM_DIR` to the AUTONORM installation directory. This variable is required unless the fallback path in `source/machine.f90` has been set manually. For example:
 
 ```bash
 export AUTONORM_DIR="/Users/koning/autonorm"
 ```
 
-If you want to run `autonorm` from anywhere, add its `bin` directory to `PATH`:
+If you want to run `autonorm` from anywhere, add the AUTONORM `bin` directory to `PATH`:
 
 ```bash
 export PATH="$AUTONORM_DIR/bin:$PATH"
 ```
 
-These lines can be added to `~/.zshrc` or `~/.profile`.
+These lines can be added to your shell configuration file, for example `~/.zshrc` or `~/.profile`.
 
-AUTONORM uses `AUTONORM_DIR` only to determine the default sibling `libraries/` directory. If setting `AUTONORM_DIR` is not possible, edit `code_dir` in `source/machine.f90` and rebuild AUTONORM.
+AUTONORM derives the location of the nuclear-data `libraries/` directory from the parent directory of `AUTONORM_DIR`.
 
-No user-name environment variable is needed by AUTONORM.
+If setting `AUTONORM_DIR` is not possible on a particular system, edit `code_dir` in `source/machine.f90` and rebuild AUTONORM.
 
-For the modern version, `code_build.bash` and `path_change.bash` are no longer required and can be removed after adopting the new installer, Makefile and `machine.f90`.
+No user-name environment variable is required by AUTONORM.
 
 ## Running AUTONORM
 
-AUTONORM reads its input from standard input and reads the corresponding TALYS output files from the current working directory. For example:
+AUTONORM reads its input from standard input and the corresponding TALYS output files from the current working directory. For example:
 
 ```bash
 autonorm < autonorm.inp > autonorm.out
@@ -129,7 +145,7 @@ AUTONORM writes normalization information such as `rescue.add` in the current wo
 
 ## Build check
 
-The supplied tarball does not contain sample cases, so `make check` performs a build/executable check only:
+The current AUTONORM repository does not contain sample cases, so `make check` performs a build/executable check only:
 
 ```bash
 make -C source check
@@ -146,7 +162,6 @@ The `autonorm/` directory contains:
 - `install_autonorm.bash` installation script
 - `source/` the Fortran source code and Makefile
 - `bin/` the executable after successful installation
-- `doc/` the user documentation
 
 ## License and Copyright
 
