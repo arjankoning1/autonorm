@@ -6,7 +6,7 @@ subroutine machine
 ! Revision    Date      Author           Description
 ! ====================================================
 !    1     2023-10-27   A.J. Koning      Original code
-!    2     2026-08-28   A.J. Koning      Runtime definition of AUTONORM directory
+!    2     2026-10-14   A.J. Koning      Runtime definition of AUTONORM directory
 !-----------------------------------------------------------------------------------------------------------------------------------
 !
 ! *** Use data from other modules
@@ -19,6 +19,7 @@ subroutine machine
   character(len=1024) :: code_dir
   character(len=1024) :: base_dir
   character(len=1024) :: autonorm_dir
+  character(len=1024) :: best_dir
   integer             :: envstat
   integer             :: i
   integer             :: n
@@ -57,6 +58,12 @@ subroutine machine
 ! The nuclear-data libraries are expected as a sibling directory of
 ! AUTONORM.
 !
+  call get_environment_variable('BEST_DIR', best_dir, length=n, status=envstat)
+  if (envstat == 0 .and. n > 0) then
+    bestlibs = trim(best_dir)
+  else
+    bestlibs = '/path/to/best_dir/'
+  endif
   libs = trim(base_dir)//'libraries/'
   return
 end subroutine machine
