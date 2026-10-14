@@ -5,7 +5,7 @@ subroutine readlib(mf,mt,isom)
 !
 ! Revision    Date      Author           Description
 ! ====================================================
-!    1     2016-10-04   A.J. Koning      Original code
+!    1     2026-10-14   A.J. Koning      Original code
 !-----------------------------------------------------------------------------------------------------------------------------------
 !
 ! *** Use data from other modules
@@ -21,6 +21,7 @@ subroutine readlib(mf,mt,isom)
   character*8   :: MTstring
   character*40  :: MTfile
   character*132 :: libfile
+  character*132 :: libfile0
   character(len=132) :: line        !
   character(len=132) :: key        !
   integer      :: keyix
@@ -46,7 +47,10 @@ subroutine readlib(mf,mt,isom)
     MTstring=trim(MTstring)//'.'
     nuclide=trim(nuc(Z))//trim(massstring)
     MTfile=proj//'-'//trim(nuclide)//'-'//trim(MTstring)//trim(lib(mf,mt,isom))
-    libfile=trim(libs)//proj//'/'//trim(nuclide)//'/'//trim(lib(mf,mt,isom))//'/tables/xs/'//trim(MTfile)
+    libfile=trim(bestlibs)//trim(MTfile)
+    libfile0=libfile
+    inquire (file=libfile,exist=lexist)
+    if (.not.lexist) libfile=trim(libs)//proj//'/'//trim(nuclide)//'/'//trim(lib(mf,mt,isom))//'/tables/xs/'//trim(MTfile)
 !
 ! Read data from cross section file from data library
 !
@@ -73,7 +77,7 @@ subroutine readlib(mf,mt,isom)
       enddo
       close(1)
     else
-      write(*,*) "AUTONORM Warning: file does not exist:",libfile
+      write(*,*) "AUTONORM Warning: file does not exist as either ",trim(libfile0)," or ",trim(libfile)
     endif
   endif
   return
