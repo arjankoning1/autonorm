@@ -26,6 +26,7 @@ module autonorm_mod
 ! machine 
 !
   character*80       :: libs
+  character*80       :: bestlibs
 !
 ! readinput 
 !
