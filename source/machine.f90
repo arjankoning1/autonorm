@@ -20,6 +20,7 @@ subroutine machine
   character(len=1024) :: base_dir
   character(len=1024) :: autonorm_dir
   character(len=1024) :: best_dir
+  character(len=1024) :: libraries_dir
   integer             :: envstat
   integer             :: i
   integer             :: n
@@ -64,6 +65,22 @@ subroutine machine
   else
     bestlibs = '/path/to/best_dir/'
   endif
-  libs = trim(base_dir)//'libraries/'
+!
+! Set directory for external nuclear data libraries.
+! Use LIBRARIES_DIR when defined, otherwise the sibling libraries/.
+!
+  call get_environment_variable('LIBRARIES_DIR', libraries_dir, length=n, status=envstat)
+  if (envstat == 0 .and. n > 0) then
+    libs = trim(libraries_dir)
+  else
+    libs = trim(base_dir)//'libraries/'
+  endif
+!
+! Ensure trailing slash.
+!
+  i = len_trim(libs)
+  if (i > 0) then
+    if (libs(i:i) /= '/') libs = trim(libs)//'/'
+  endif
   return
 end subroutine machine
