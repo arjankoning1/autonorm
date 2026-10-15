@@ -47,7 +47,7 @@ subroutine readlib(mf,mt,isom)
     MTstring=trim(MTstring)//'.'
     nuclide=trim(nuc(Z))//trim(massstring)
     MTfile=proj//'-'//trim(nuclide)//'-'//trim(MTstring)//trim(lib(mf,mt,isom))
-    libfile=trim(bestlibs)//trim(MTfile)
+    libfile = trim(bestlibs)//'/'//trim(nuclide)//'/'//trim(MTfile)
     libfile0=libfile
     inquire (file=libfile,exist=lexist)
     if (.not.lexist) libfile=trim(libs)//proj//'/'//trim(nuclide)//'/'//trim(lib(mf,mt,isom))//'/tables/xs/'//trim(MTfile)
