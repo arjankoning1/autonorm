@@ -54,6 +54,7 @@ subroutine readlib(mf,mt,isom)
 !
 ! Read data from cross section file from data library
 !
+    nenlib=0
     emaxlib=0.
     inquire (file=libfile,exist=lexist)
     if (lexist) then
