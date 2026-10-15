@@ -20,8 +20,8 @@ subroutine readlib(mf,mt,isom)
   character*6   :: nuclide
   character*8   :: MTstring
   character*40  :: MTfile
-  character*132 :: libfile
-  character*132 :: libfile0
+  character(len=1024) :: libfile
+  character(len=1024) :: libfile0
   character(len=132) :: line        !
   character(len=132) :: key        !
   integer      :: keyix
